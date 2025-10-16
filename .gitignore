@@ -1,0 +1,5 @@
+/env
+*.komodoproject
+__pycache__
+project/foodbot/foodbot-config.json
+
