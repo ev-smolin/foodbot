@@ -25,13 +25,15 @@ class MenuGetter:
 
     def run(self):
         self.log = logging.getLogger(__name__)
-        self.today = date.today().strftime(self.DATE_FORMAT)
-        self.check_repeat()
         self.read_config()
+        self.today = date.today().strftime(self.DATE_FORMAT)
+        prev_msg_id = self.check_repeat()
+        if prev_msg_id:
+            self.delete_message(prev_msg_id)
         xl_menu = self.fetch_menu()
         txt_menu = self.process_menu(xl_menu)
-        self.notify(txt_menu)
-        self.set_date()
+        msg_id = self.notify(txt_menu)
+        self.set_result(msg_id)
 
     def read_config(self):
         with open(self.CONFIG_FILE, 'r') as fp:
@@ -61,18 +63,42 @@ class MenuGetter:
 
     def notify(self, txt_menu):
         message = self.config['telegram']['message_template'].format(self.today, txt_menu)
-        requests.post(self.config['telegram']['bot_url'] + '/sendMessage',
-            json={'chat_id': self.config['telegram']['chat_id'], 'text': message, 'parse_mode': 'Markdown'})
+        rsp = requests.post(self.config['telegram']['bot_url'] + '/sendMessage',
+            json={'chat_id': self.config['telegram']['chat_id'],
+                  'text': message,
+                  'parse_mode': 'Markdown',
+                  'disable_notification': True
+            })
+        return rsp.json()['result']['message_id']
+
+    def delete_message(self, msg_id):
+        self.log.debug('deleting message #{0}'.format(msg_id))
+        try:
+            requests.post(self.config['telegram']['bot_url'] + '/deleteMessage',
+            json={'chat_id': self.config['telegram']['chat_id'], 'message_id': msg_id})
+        except Exception:
+            self.log.exception()
 
 
     def check_repeat(self):
+        prev_msg_id = None
+        last_date = None
         with open(self.LAST_PROCESSED_FILE, 'a+') as fp:
             fp.seek(0)
-            last = fp.read().strip()
+            last_record = fp.read().strip()
 
-        if last and last == self.today:
+            if last_record:
+                if ';' in last_record:
+                    last_date, prev_msg_id = last_record.split(";")
+                else:
+                    last_date = last_record
+
+
+        if last_date and last_date == self.today:
             raise Exception('Menu already imported today')
 
-    def set_date(self):
+        return prev_msg_id
+
+    def set_result(self, msg_id):
         with open(self.LAST_PROCESSED_FILE, 'w+') as fp:
-            fp.write(self.today)
+            fp.write('{0:s};{1:d}'.format(self.today, msg_id))
