@@ -54,7 +54,7 @@ class MenuGetter:
             if row[0].value:
                 output.write("\n*" + str(row[0].value) + ":*\n")
 
-            if row[3].value:
+            if row[3].value and row[3].value.lower() not in self.config['source']['ignore_lines']:
                 output.write("- " + str(row[3].value).lower() + ";\n")
 
         rsp = output.getvalue()
