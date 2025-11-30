@@ -29,7 +29,8 @@ env/bin/pip install -r requirements.txt
 {
     "source": {
         "url": "https://school-site/food/{0}-sm.xlsx",
-        "user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:142.0) Gecko/20100101 Firefox/142.0"
+        "user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:142.0) Gecko/20100101 Firefox/142.0",
+        "ignore_lines": ["итого", "всего"]
     },
     "telegram": {
         "bot_url": "https://api.telegram.org/botNNN:TOKEN",
