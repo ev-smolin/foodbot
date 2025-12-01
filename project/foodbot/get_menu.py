@@ -63,12 +63,16 @@ class MenuGetter:
 
     def notify(self, txt_menu):
         message = self.config['telegram']['message_template'].format(self.today, txt_menu)
-        rsp = requests.post(self.config['telegram']['bot_url'] + '/sendMessage',
-            json={'chat_id': self.config['telegram']['chat_id'],
-                  'text': message,
-                  'parse_mode': 'Markdown',
-                  'disable_notification': True
-            })
+        req = {
+            'chat_id': self.config['telegram']['chat_id'],
+            'text': message,
+            'parse_mode': 'Markdown',
+            'disable_notification': True
+        }
+        if 'message_thread_id' in self.config['telegram'] and self.config['telegram']['message_thread_id'] is not None:
+            req['message_thread_id'] = self.config['telegram']['message_thread_id']
+
+        rsp = requests.post(self.config['telegram']['bot_url'] + '/sendMessage', json=req)
         return rsp.json()['result']['message_id']
 
     def delete_message(self, msg_id):
