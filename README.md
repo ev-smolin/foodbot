@@ -1,6 +1,6 @@
 # foodbot - cкрипт уведомлений о школьном меню в Telegram
 
-Подходит для школ, публикующих меню в типовом формате в виде xlsx-файлов по адресу https://school-site/food/YYYY-MM-DD-sm.xlsx, где YYYY-MM-DD - текущая дата.
+Подходит для российских школ, публикующих меню в типовом формате в виде xlsx-файлов по адресу https://school-site/food/YYYY-MM-DD-sm.xlsx, где YYYY-MM-DD - текущая дата.
 
 Скрипт скачивает меню в xlsx-формате с сайта школы, разбирает его согласно ожидаемому формату и отправляет текстовое сообщение в указанный чат Telegram.
 Имеется защита от повтороного запуска в тот же день.
@@ -17,7 +17,12 @@ virtualenv env
 ```
 env/bin/pip install -r requirements.txt
 ```
-* Добавить команду запуск в crontab
+* создать в каталоге `project/foodbot` конфигурационный файл `foodbot-config.json` согласно примеру ниже
+* Добавить команду запуска в `/etc/crontab` в нужное время, например
+
+```
+02 7    * * *   user     cd /path/to/foodbot/project/foodbot && ../../env/bin/python __init__.py
+```
 
 ## Конфигурация:
 
@@ -34,7 +39,8 @@ env/bin/pip install -r requirements.txt
     },
     "telegram": {
         "bot_url": "https://api.telegram.org/botNNN:TOKEN",
-        "chat_id": "NNNNNN",
+        "chat_id": "-NNNNNN",
+        "message_thread_id": null,
         "message_template": "*Доброе утро!* Сегодня, {0}, в школе приготовят:\n{1}"
     }
 }
