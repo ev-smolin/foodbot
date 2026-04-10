@@ -79,7 +79,8 @@ class MenuGetter:
         self.log.debug('deleting message #{0}'.format(msg_id))
         try:
             requests.post(self.config['telegram']['bot_url'] + '/deleteMessage',
-            json={'chat_id': self.config['telegram']['chat_id'], 'message_id': msg_id})
+            json={'chat_id': self.config['telegram']['chat_id'], 'message_id': msg_id},
+            proxies=self.config['telegram']['proxies'])
         except Exception:
             self.log.exception()
 
