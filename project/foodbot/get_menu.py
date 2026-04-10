@@ -72,7 +72,7 @@ class MenuGetter:
         if 'message_thread_id' in self.config['telegram'] and self.config['telegram']['message_thread_id'] is not None:
             req['message_thread_id'] = self.config['telegram']['message_thread_id']
 
-        rsp = requests.post(self.config['telegram']['bot_url'] + '/sendMessage', json=req)
+        rsp = requests.post(self.config['telegram']['bot_url'] + '/sendMessage', json=req, proxies=self.config['telegram']['proxies'])
         return rsp.json()['result']['message_id']
 
     def delete_message(self, msg_id):
